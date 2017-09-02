@@ -7,6 +7,8 @@ import {mapUrl} from 'utils/url.js';
 import PrettyError from 'pretty-error';
 import http from 'http';
 import SocketIo from 'socket.io';
+import {paramCase} from 'change-case';
+import startJobs from './scheduledJobs'
 
 const pretty = new PrettyError();
 const app = express();
@@ -16,6 +18,8 @@ const server = new http.Server(app);
 const io = new SocketIo(server);
 io.path('/ws');
 
+startJobs(io);
+
 app.use(session({
   secret: 'react and redux rule!!!!',
   resave: false,
@@ -24,11 +28,14 @@ app.use(session({
 }));
 app.use(bodyParser.json());
 
+const transformedActions = {};
+Object.entries(actions).forEach(([k, v]) => {
+  transformedActions[paramCase(k)] = v;
+});
 
 app.use((req, res) => {
   const splittedUrlPath = req.url.split('?')[0].split('/').slice(1);
-
-  const {action, params} = mapUrl(actions, splittedUrlPath);
+  const {action, params} = mapUrl(transformedActions, splittedUrlPath);
 
   if (action) {
     action(req, params)

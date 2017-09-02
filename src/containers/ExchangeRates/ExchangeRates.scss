@@ -1,0 +1,30 @@
+.exchange-rates-page {
+  .card {
+    .base-currency {
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+    .price {
+      color: #F5A623;
+      font-size: 1.5em;
+      padding: 0 0 0.5em 0;
+    }
+    .metadata {
+      color: #999999;
+      display: flex;
+      & > div {
+        flex: 1;
+        padding-right: 10px;
+      }
+      .label {
+        font-weight: bold;
+      }
+      .price-increase {
+        color: #8BD738;
+      }
+      .price-decrease {
+        color: #D0021B;
+      }
+    }
+  }
+}

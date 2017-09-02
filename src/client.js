@@ -12,7 +12,7 @@ import { Router, browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { ReduxAsyncConnect } from 'redux-async-connect';
 import useScroll from 'scroll-behavior/lib/useStandardScroll';
-
+import {IntlProvider} from 'react-intl';
 import getRoutes from './routes';
 
 const client = new ApiClient();
@@ -46,7 +46,9 @@ const component = (
 
 ReactDOM.render(
   <Provider store={store} key="provider">
-    {component}
+    <IntlProvider locale="en">
+      {component}
+    </IntlProvider>
   </Provider>,
   dest
 );
