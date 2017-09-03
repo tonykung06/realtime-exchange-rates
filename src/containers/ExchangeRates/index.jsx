@@ -83,7 +83,7 @@ export default class Widgets extends Component {
                     priceChangeCssClass = styles['price-decrease'];
                   }
                   return (
-                    <div title="Load latest price" key={item.ticker.base} className={styles.card + ' card'}>
+                    <div title={`${item.ticker.base}-${item.ticker.target}`} key={item.ticker.base} className={styles.card + ' card'}>
                       <div className="content">
                         <div className={styles['base-currency']}>
                           {item.ticker.baseEnglishName}
