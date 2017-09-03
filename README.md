@@ -1,6 +1,7 @@
 # Docker commands
 - `docker build -t tonykung06/ebaytestweb -f Dockerfile.web .`
 - `docker build -t tonykung06/ebaytestsocketio -f Dockerfile.socketio .`
+- `docker run --name mongo -p 27017:27017 -d mongo`
 - `docker run --name redis -p 6379:6379 -d redis`
 - `docker run --name ebaytestweb -d -p 8080:8080 tonykung06/ebaytestweb`
 - `docker run --name ebaytestsocketio -d -p 8080:8080 tonykung06/ebaytestsocketio`

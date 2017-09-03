@@ -49,7 +49,9 @@
         "NODE_PATH": "./scheduledJobs",
         "NODE_ENV": "development",
         "REDIS_HOST": "192.168.99.100",
-        "REDIS_PORT": "6379"
+        "REDIS_PORT": "6379",
+        "MONGODB_HOST": "192.168.99.100",
+        "MONGODB_PORT": "27017"
       }
     },
     "scheduled-jobs-prod": {
@@ -58,7 +60,9 @@
         "NODE_PATH": "./scheduledJobs",
         "NODE_ENV": "production",
         "REDIS_HOST": "redis",
-        "REDIS_PORT": "6379"
+        "REDIS_PORT": "6379",
+        "MONGODB_HOST": "mongo",
+        "MONGODB_PORT": "27017"
       }
     },
     "socket-dev": {
@@ -168,6 +172,7 @@
     "lru-memoize": "^1.0.0",
     "map-props": "^1.0.0",
     "moment": "^2.18.1",
+    "mongodb": "^2.2.31",
     "multireducer": "^2.0.0",
     "piping": "^0.3.0",
     "pretty-error": "^1.2.0",

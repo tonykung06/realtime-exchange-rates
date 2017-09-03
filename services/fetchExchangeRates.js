@@ -52,8 +52,8 @@ const getAllExchangeRates = async () => {
     return results;
 }
 
-const getExchangeRate = (urrencyPair) => {
-    return axios.get(`https://api.cryptonator.com/api/ticker/${urrencyPair}`).then(r => addBaseCurrencyEnglishName(r.data));
+const getExchangeRate = (currencyPair) => {
+    return axios.get(`https://api.cryptonator.com/api/ticker/${currencyPair}`).then(r => addBaseCurrencyEnglishName(r.data));
 }
 
 const formatExchangeRateCache = (exchangeRates) => {
