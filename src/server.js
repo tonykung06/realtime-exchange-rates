@@ -21,11 +21,15 @@ import getRoutes from './routes';
 import {IntlProvider} from 'react-intl';
 
 const targetUrl = 'http://' + config.apiHost + ':' + config.apiPort;
+const socketServerUrl = `http://${config.socketHost}:${config.socketPort}`;
 const pretty = new PrettyError();
 const app = new Express();
 const server = new http.Server(app);
 const proxy = httpProxy.createProxyServer({
-  target: targetUrl,
+  target: targetUrl
+});
+const wsProxy = httpProxy.createProxyServer({
+  target: socketServerUrl,
   ws: true
 });
 
@@ -39,12 +43,13 @@ app.use('/api', (req, res) => {
   proxy.web(req, res, {target: targetUrl});
 });
 
+// proxy to socket server
 app.use('/ws', (req, res) => {
-  proxy.web(req, res, {target: targetUrl + '/ws'});
+  wsProxy.web(req, res, {target: socketServerUrl + '/ws'});
 });
 
 server.on('upgrade', (req, socket, head) => {
-  proxy.ws(req, socket, head);
+  wsProxy.ws(req, socket, head);
 });
 
 // added the error handling to avoid https://github.com/nodejitsu/node-http-proxy/issues/527

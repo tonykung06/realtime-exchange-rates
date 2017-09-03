@@ -1,3 +1,11 @@
+# Docker commands
+- `docker build -t tonykung06/ebaytestweb -f Dockerfile.web .`
+- `docker build -t tonykung06/ebaytestsocketio -f Dockerfile.socketio .`
+- `docker run --name redis -p 6379:6379 -d redis`
+- `docker run --name ebaytestweb -d -p 8080:8080 tonykung06/ebaytestweb`
+- `docker run --name ebaytestsocketio -d -p 8080:8080 tonykung06/ebaytestsocketio`
+- `docker run -e SERVER_NAME="192.168.99.100" -e WS_ROUTE="ws" --link="ebaytestweb:web" --link="ebaytestsocketio:ws" -d -p 80:80 foliea/nginx-proxy`
+
 # React Redux Universal Hot Example
 
 [![build status](https://img.shields.io/travis/erikras/react-redux-universal-hot-example/master.svg?style=flat-square)](https://travis-ci.org/erikras/react-redux-universal-hot-example)

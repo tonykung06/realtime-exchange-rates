@@ -8,7 +8,6 @@ import PrettyError from 'pretty-error';
 import http from 'http';
 import SocketIo from 'socket.io';
 import {paramCase} from 'change-case';
-import startJobs from './scheduledJobs'
 
 const pretty = new PrettyError();
 const app = express();
@@ -17,8 +16,6 @@ const server = new http.Server(app);
 
 const io = new SocketIo(server);
 io.path('/ws');
-
-startJobs(io);
 
 app.use(session({
   secret: 'react and redux rule!!!!',
