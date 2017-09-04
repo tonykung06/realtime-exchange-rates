@@ -2,6 +2,7 @@ import axios from 'axios';
 import chunk from 'lodash.chunk';
 import redis from 'redis';
 import bluebird from 'bluebird';
+import moment from 'moment';
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 const redisClient = redis.createClient({
@@ -39,15 +40,15 @@ const batchFetchExchangeRates = (pairs) => {
 };
 
 // TODO: error handling, should try to fetch as many results as you could
-const getAllExchangeRates = async () => {
-    const chunks = chunk(currencyPairs, 4);
+const getExchangeRates = async (pairs = currencyPairs) => {
+    const chunks = chunk(pairs, 4);
     let results = [];
     try {
         for (let i = 0; i < chunks.length; i++) {
             results = [...results, ...(await batchFetchExchangeRates(chunks[i]))];
         }
     } catch (e) {
-        console.log(`[ERROR] eat the error in getAllExchangeRates, details: ${e.message}`);
+        console.log(`[ERROR] eat the error in getExchangeRates, details: ${e.message}`);
     }
     return results;
 }
@@ -85,9 +86,30 @@ const getNextExchangeRate = async () => {
     return individualExchangeRateUpdate;
 };
 
+const getExchangeRateUpdates = async () => {
+    const cachedAllExchangeRates = await redisClient.hgetallAsync(exchangeRatesCachKey);
+    if (!cachedAllExchangeRates || Object.keys(cachedAllExchangeRates) < 1) {
+        return fullRefreshCache();
+    }
+    const now = moment();
+    const currencyPairsRequireUpdate = Object.values(cachedAllExchangeRates).reduce((accumulator, currentValue) => {
+        currentValue = JSON.parse(currentValue);
+        if (moment.unix(Number(currentValue.timestamp)).add(60, 's').isBefore(now)) {
+            return [...accumulator, toUsd(currentValue.ticker.base)];
+        }
+        return accumulator;
+    }, []);
+    if (currencyPairsRequireUpdate.length < 1) {
+        return [];
+    }
+    const updatedExchangeRates = await getExchangeRates(currencyPairsRequireUpdate);
+    await redisClient.HMSETAsync(exchangeRatesCachKey, formatExchangeRateCache(updatedExchangeRates));
+    return updatedExchangeRates;
+};
+
 const fullRefreshCache = async () => {
     console.log('Doing a full refresh on exchange rates cache');
-    const allExchangeRates = await getAllExchangeRates();
+    const allExchangeRates = await getExchangeRates();
     await redisClient.HMSETAsync(exchangeRatesCachKey, formatExchangeRateCache(allExchangeRates));
     return allExchangeRates;
 };
@@ -109,5 +131,5 @@ const getAllExchangeRatesWithCache = async () => {
     return allExchangeRates;
 };
 
-export {getAllExchangeRates, getExchangeRate, getNextExchangeRate, getAllExchangeRatesWithCache, fullRefreshCache};
+export {getExchangeRate, getNextExchangeRate, getAllExchangeRatesWithCache, fullRefreshCache, getExchangeRateUpdates};
 

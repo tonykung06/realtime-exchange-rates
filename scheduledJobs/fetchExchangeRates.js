@@ -1,5 +1,5 @@
 import {CronJob} from 'cron';
-import {getNextExchangeRate, fullRefreshCache} from '../services/fetchExchangeRates';
+import {getExchangeRateUpdates, fullRefreshCache} from '../services/fetchExchangeRates';
 import {MongoClient} from 'mongodb';
 import bluebird from 'bluebird';
 bluebird.promisifyAll(MongoClient);
@@ -44,18 +44,15 @@ export default async function start() {
         console.log(`[ERROR] Failed to fetch and cache exchange rates with error ${e.message}`);
     }
 
-    new CronJob('*/3 * * * * *', async () => {
+    new CronJob('*/30 * * * * *', async () => {
         try {
-            console.log('Fetching update for individual exchange rate every 3s');
-
-             // TODO: only emit change if the data timestamp has proceeded
-            const individualExchangeRate = await getNextExchangeRate();
+            const exchangeRateUpdates = await getExchangeRateUpdates();
 
             // TODO: since the current app has only one page and all clients are interested in the exchange rate updates, broadcasting is fine in this case.
             //  In case that we have multiple UI pages, and each of them is interested in different data updates, we need to use socketio Room/Namespace to avoid
             //  unnecessary updates published to clients.
-            emitter.emit('exchange-rate-updated', individualExchangeRate);
-            insertApiAudit(mongoDbConnection, [individualExchangeRate]);
+            exchangeRateUpdates.forEach(individualExchangeRate => emitter.emit('exchange-rate-updated', individualExchangeRate));
+            insertApiAudit(mongoDbConnection, exchangeRateUpdates);
         } catch (e) {
             console.log(`[ERROR] Failed to fetch and cache individual exchange rate with error ${e.message}`);
         }
