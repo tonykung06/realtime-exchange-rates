@@ -18,21 +18,13 @@ import {FormattedNumber} from 'react-intl';
 }])
 @connect(
   state => ({
-    widgets: state.exchangeRates.data,
-    editing: state.exchangeRates.editing,
-    error: state.exchangeRates.error,
-    loading: state.exchangeRates.loading
+    exchangeRates: state.exchangeRates.data
   }),
   {...widgetActions, initializeWithKey })
 export default class Widgets extends Component {
   static propTypes = {
-    widgets: PropTypes.array,
-    error: PropTypes.string,
-    loading: PropTypes.bool,
+    exchangeRates: PropTypes.array,
     initializeWithKey: PropTypes.func.isRequired,
-    editing: PropTypes.object.isRequired,
-    load: PropTypes.func.isRequired,
-    editStart: PropTypes.func.isRequired,
     onDataUpdated: PropTypes.func.isRequired
   };
 
@@ -59,11 +51,7 @@ export default class Widgets extends Component {
 
   render() {
     require('semantic-ui-card/card.css');
-    const {loading, widgets} = this.props;
-    let refreshClassName = 'fa fa-refresh';
-    if (loading) {
-      refreshClassName += ' fa-spin';
-    }
+    const {exchangeRates} = this.props;
     const styles = require('./ExchangeRates.scss');
     return (
       <div className={styles['exchange-rates-page'] + ' container'}>
@@ -72,10 +60,10 @@ export default class Widgets extends Component {
         </h1>
         <Helmet title="Cryptocurrency Realtime Price"/>
         {
-          widgets && widgets.length && (
+          exchangeRates && exchangeRates.length && (
             <div className="ui link cards">
               {
-                widgets.map(item => {
+                exchangeRates.map(item => {
                   let priceChangeCssClass = '';
                   if (Number(item.ticker.change) > 0) {
                     priceChangeCssClass = styles['price-increase'];

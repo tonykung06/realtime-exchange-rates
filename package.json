@@ -37,6 +37,7 @@
     "test": "karma start",
     "test-node": "./node_modules/mocha/bin/mocha $(find api -name '*-test.js') --compilers js:babel-core/register",
     "test-node-watch": "./node_modules/mocha/bin/mocha $(find api -name '*-test.js') --compilers js:babel-core/register --watch",
+    
     "scheduled-jobs": "better-npm-run scheduled-jobs-dev",
     "scheduled-jobs-prod": "better-npm-run scheduled-jobs-prod",
     "socket": "better-npm-run socket-dev",

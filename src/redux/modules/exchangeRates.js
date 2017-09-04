@@ -17,29 +17,42 @@ function isSameExchangeRate(v1, v2) {
           ticker1.target === ticker2.target;
 }
 
-function updateIndividualExchangeRate(state, updatedExchangeRate) {
-  if (state.data && state.data.length > 0) {
-    let updated = false;
-    state.data = state.data.map(exchangeRate => {
-      if (isSameExchangeRate(exchangeRate, updatedExchangeRate) && exchangeRate.timestamp < updatedExchangeRate.timestamp) {
-        updated = true;
-        return updatedExchangeRate;
-      }
-      return exchangeRate;
-    });
-    if (updated) {
+function upsertIndividualExchangeRate(state, updatedExchangeRate) {
+  const existingExchangeRates = state.data;
+  for (let index = 0; index < existingExchangeRates.length; index++) {
+    const exchangeRate = existingExchangeRates[index];
+    if (!isSameExchangeRate(exchangeRate, updatedExchangeRate)) {
+      continue;
+    }
+    if (exchangeRate.timestamp < updatedExchangeRate.timestamp) {
+      existingExchangeRates[index] = updatedExchangeRate;
       return {
-        ...state
+        ...state,
+        data: existingExchangeRates
       };
     }
   }
   return state;
 }
 
+function sortExchangeRates(exchangeRates) {
+  return exchangeRates.sort((itemA, itemB) => {
+    const baseExchangeA = itemA.ticker.base;
+    const baseExchangeB = itemB.ticker.base;
+    if (baseExchangeA === baseExchangeB) {
+      return 0;
+    } else if (baseExchangeA < baseExchangeB) {
+      return -1;
+    }
+    return 1;
+  });
+}
+
 const initialState = {
   loaded: false,
   editing: {},
-  saveError: {}
+  saveError: {},
+  data: []
 };
 
 export default function reducer(state = initialState, action = {}) {
@@ -54,7 +67,7 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         loading: false,
         loaded: true,
-        data: action.result,
+        data: sortExchangeRates(action.result || []),
         error: null
       };
     case LOAD_FAIL:
@@ -62,52 +75,11 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         loading: false,
         loaded: false,
-        data: null,
+        data: [],
         error: action.error
       };
-    case EDIT_START:
-      return {
-        ...state,
-        editing: {
-          ...state.editing,
-          [action.id]: true
-        }
-      };
-    case EDIT_STOP:
-      return {
-        ...state,
-        editing: {
-          ...state.editing,
-          [action.id]: false
-        }
-      };
-    case SAVE:
-      return state; // 'saving' flag handled by redux-form
-    case SAVE_SUCCESS:
-      const data = [...state.data];
-      data[action.result.id - 1] = action.result;
-      return {
-        ...state,
-        data: data,
-        editing: {
-          ...state.editing,
-          [action.id]: false
-        },
-        saveError: {
-          ...state.saveError,
-          [action.id]: null
-        }
-      };
-    case SAVE_FAIL:
-      return typeof action.error === 'string' ? {
-        ...state,
-        saveError: {
-          ...state.saveError,
-          [action.id]: action.error
-        }
-      } : state;
     case GOT_UPDATE_SUCCESS:
-      return updateIndividualExchangeRate(state, action.result);
+      return upsertIndividualExchangeRate(state, action.result);
     default:
       return state;
   }
