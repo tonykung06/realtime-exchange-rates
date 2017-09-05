@@ -31,12 +31,8 @@ const addBaseCurrencyEnglishName = apiResult => {
 };
 
 const batchFetchExchangeRates = (pairs) => {
-    const requests = pairs.map(pair => {
-        return axios.get(`https://api.cryptonator.com/api/ticker/${pair}`);
-    });
-    return axios.all(requests).then((results) => {
-        return results.map(r => addBaseCurrencyEnglishName(r.data));
-    });
+    const requests = pairs.map(getExchangeRate);
+    return axios.all(requests);
 };
 
 // TODO: error handling, should try to fetch as many results as you could
@@ -90,27 +86,6 @@ const getNextExchangeRate = async () => {
     return individualExchangeRateUpdate;
 };
 
-const getExchangeRateUpdates = async () => {
-    const cachedAllExchangeRates = await redisClient.hgetallAsync(exchangeRatesCachKey);
-    if (!cachedAllExchangeRates || Object.keys(cachedAllExchangeRates) < 1) {
-        return fullRefreshCache();
-    }
-    const now = moment();
-    const currencyPairsRequireUpdate = Object.values(cachedAllExchangeRates).reduce((accumulator, currentValue) => {
-        currentValue = JSON.parse(currentValue);
-        if (moment.unix(Number(currentValue.timestamp)).add(120, 's').isBefore(now)) {
-            return [...accumulator, toUsd(currentValue.ticker.base)];
-        }
-        return accumulator;
-    }, []);
-    if (currencyPairsRequireUpdate.length < 1) {
-        return [];
-    }
-    const updatedExchangeRates = await getExchangeRates(currencyPairsRequireUpdate);
-    await redisClient.HMSETAsync(exchangeRatesCachKey, formatExchangeRateCache(updatedExchangeRates));
-    return updatedExchangeRates;
-};
-
 const fullRefreshCache = async () => {
     console.log('Doing a full refresh on exchange rates cache');
     const allExchangeRates = await getExchangeRates();
@@ -135,5 +110,5 @@ const getAllExchangeRatesWithCache = async () => {
     return allExchangeRates;
 };
 
-export {getExchangeRate, getNextExchangeRate, getAllExchangeRatesWithCache, fullRefreshCache, getExchangeRateUpdates};
+export {getNextExchangeRate, getAllExchangeRatesWithCache, fullRefreshCache};
 

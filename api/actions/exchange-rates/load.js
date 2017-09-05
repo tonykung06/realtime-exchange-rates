@@ -1,5 +1,5 @@
 import {getAllExchangeRatesWithCache} from '../../../services/fetchExchangeRates';
 
-export default function load(req) {
+export default function load() {
   return getAllExchangeRatesWithCache();
 }
