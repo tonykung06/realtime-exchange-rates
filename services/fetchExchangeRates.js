@@ -40,6 +40,7 @@ const batchFetchExchangeRates = (pairs) => {
 };
 
 // TODO: error handling, should try to fetch as many results as you could
+// Need to chunk requests as they don't offer an api to do batch exchange rate fetch and too many requests at one time will give 503
 const getExchangeRates = async (pairs = currencyPairs) => {
     const chunks = chunk(pairs, 4);
     let results = [];
@@ -78,6 +79,9 @@ const generateNextCurrencyPair = nextCurrencyPair();
 
 const getNextExchangeRate = async () => {
     const individualExchangeRateUpdate = await getExchangeRate(generateNextCurrencyPair.next().value);
+    if (individualExchangeRateUpdate.ticker.base === 'BTC') {
+        console.log(`GOt update on ${individualExchangeRateUpdate.ticker.base}, price: ${individualExchangeRateUpdate.ticker.price}, timestamp: ${individualExchangeRateUpdate.timestamp}`)
+    }
     const hashKey = `${individualExchangeRateUpdate.ticker.base}-${individualExchangeRateUpdate.ticker.target}`;
     await redisClient.HMSETAsync(exchangeRatesCachKey, {
         [hashKey]: JSON.stringify(individualExchangeRateUpdate)
@@ -94,7 +98,7 @@ const getExchangeRateUpdates = async () => {
     const now = moment();
     const currencyPairsRequireUpdate = Object.values(cachedAllExchangeRates).reduce((accumulator, currentValue) => {
         currentValue = JSON.parse(currentValue);
-        if (moment.unix(Number(currentValue.timestamp)).add(60, 's').isBefore(now)) {
+        if (moment.unix(Number(currentValue.timestamp)).add(120, 's').isBefore(now)) {
             return [...accumulator, toUsd(currentValue.ticker.base)];
         }
         return accumulator;

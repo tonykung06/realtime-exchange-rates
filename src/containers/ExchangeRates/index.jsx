@@ -96,7 +96,7 @@ export default class Widgets extends Component {
                       </div>
                       <div className="extra content">
                         <span className="right floated">
-                          changed {moment.unix(item.timestamp).fromNow()}
+                          {moment.unix(item.timestamp).format('LTS')}
                         </span>
                       </div>
                     </div>

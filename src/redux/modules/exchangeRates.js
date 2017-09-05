@@ -18,13 +18,13 @@ function isSameExchangeRate(v1, v2) {
 }
 
 function upsertIndividualExchangeRate(state, updatedExchangeRate) {
-  const existingExchangeRates = state.data;
+  const existingExchangeRates = [...state.data];
   for (let index = 0; index < existingExchangeRates.length; index++) {
     const exchangeRate = existingExchangeRates[index];
     if (!isSameExchangeRate(exchangeRate, updatedExchangeRate)) {
       continue;
     }
-    if (exchangeRate.timestamp < updatedExchangeRate.timestamp) {
+    if (Number(exchangeRate.timestamp) < Number(updatedExchangeRate.timestamp)) {
       existingExchangeRates[index] = updatedExchangeRate;
       return {
         ...state,
