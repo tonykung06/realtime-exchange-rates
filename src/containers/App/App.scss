@@ -1,11 +1,15 @@
 .app {
+  h1 {
+    margin-top: 40px;
+    margin-bottom: 20px;
+  }
   .brand {
     position: absolute;
     $size: 40px;
     top: 5px;
     left: 5px;
     display: inline-block;
-    background: #2d2d2d url('../Home/logo.png') no-repeat center center;
+    background: #2d2d2d url('./logo.png') no-repeat center center;
     width: $size;
     height: $size;
     background-size: 80%;
@@ -18,5 +22,5 @@
   }
 }
 .appContent {
-  margin: 0; // for fixed navbar
+  margin: 40px 0; // for fixed navbar
 }
