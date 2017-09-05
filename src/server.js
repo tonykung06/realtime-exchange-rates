@@ -11,6 +11,7 @@ import ApiClient from './helpers/ApiClient';
 import Html from './helpers/Html';
 import PrettyError from 'pretty-error';
 import http from 'http';
+import proxyWs from './proxyWs';
 
 import { match } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
@@ -21,17 +22,14 @@ import getRoutes from './routes';
 import {IntlProvider} from 'react-intl';
 
 const targetUrl = 'http://' + config.apiHost + ':' + config.apiPort;
-const socketServerUrl = `http://${config.socketHost}:${config.socketPort}`;
+
 const pretty = new PrettyError();
 const app = new Express();
 const server = new http.Server(app);
 const proxy = httpProxy.createProxyServer({
   target: targetUrl
 });
-const wsProxy = httpProxy.createProxyServer({
-  target: socketServerUrl,
-  ws: true
-});
+
 
 app.use(compression());
 app.use(favicon(path.join(__dirname, '..', 'static', 'favicon.ico')));
@@ -43,14 +41,10 @@ app.use('/api', (req, res) => {
   proxy.web(req, res, {target: targetUrl});
 });
 
-// proxy to socket server
-app.use('/ws', (req, res) => {
-  wsProxy.web(req, res, {target: socketServerUrl + '/ws'});
-});
-
-server.on('upgrade', (req, socket, head) => {
-  wsProxy.ws(req, socket, head);
-});
+// proxy to socket server only if socket config is passed in from env, which will only be done in dev environment
+if (process.env.SOCKET_HOST && process.env.SOCKET_PORT) {
+  proxyWs(app, server, process.env.SOCKET_HOST, process.env.SOCKET_PORT);
+}
 
 // added the error handling to avoid https://github.com/nodejitsu/node-http-proxy/issues/527
 proxy.on('error', (error, req, res) => {

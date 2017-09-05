@@ -19,7 +19,6 @@ export default {
         const newExchangeRates = exchangeRates.reduce((accumulator, currentVal) => {
             const key = currentVal.ticker.base;
             const previousEmissionTimestamp = exchangeRatesAleadyEmitted[key];
-            console.log(`${key} ${previousEmissionTimestamp} vs ${currentVal.timestamp}`);
             if (previousEmissionTimestamp && previousEmissionTimestamp >= Number(currentVal.timestamp)) {
                 console.log(`${key} at ${currentVal.timestamp} was already seen before`);
             }

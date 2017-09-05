@@ -37,6 +37,7 @@
     "test": "npm run test-node",
     "test-node": "mocha \"./api/actions/__tests__/exchange-rates-test.js\" --compilers js:babel-core/register",
     "test-node-watch": "mocha \"./api/actions/__tests__/exchange-rates-test.js\" --compilers js:babel-core/register --watch",
+    
     "scheduled-jobs": "better-npm-run scheduled-jobs-dev",
     "scheduled-jobs-prod": "better-npm-run scheduled-jobs-prod",
     "socket": "better-npm-run socket-dev",
@@ -58,13 +59,10 @@
       "command": "node ./bin/scheduledJobs.js",
       "env": {
         "NODE_PATH": "./scheduledJobs",
-        "NODE_ENV": "production",
-        "REDIS_HOST": "redis",
-        "REDIS_PORT": "6379",
-        "MONGODB_HOST": "mongo",
-        "MONGODB_PORT": "27017"
+        "NODE_ENV": "production"
       }
     },
+
     "socket-dev": {
       "command": "node ./bin/socket.js",
       "env": {
@@ -72,19 +70,26 @@
         "NODE_ENV": "development",
         "REDIS_HOST": "192.168.99.100",
         "REDIS_PORT": "6379",
-        "SOCKET_HOST": "localhost",
-        "SOCKET_PORT": "9000"
+        "SOCKET_PORT": "9001"
       }
     },
     "socket-prod": {
       "command": "node ./bin/socket.js",
       "env": {
         "NODE_PATH": "./socket",
-        "NODE_ENV": "production",
-        "REDIS_HOST": "redis",
-        "REDIS_PORT": "6379",
-        "SOCKET_HOST": "socket",
-        "SOCKET_PORT": "9000"
+        "NODE_ENV": "production"
+      }
+    },
+
+    "start-dev": {
+      "command": "node ./bin/server.js",
+      "env": {
+        "NODE_PATH": "./src",
+        "NODE_ENV": "development",
+        "PORT": 3000,
+        "APIPORT": 3030,
+        "SOCKET_HOST": "localhost",
+        "SOCKET_PORT": "9001"
       }
     },
     "start-prod": {
@@ -96,25 +101,7 @@
         "APIPORT": 3030
       }
     },
-    "start-prod-api": {
-      "command": "node ./bin/api.js",
-      "env": {
-        "NODE_PATH": "./api",
-        "NODE_ENV": "production",
-        "APIPORT": 3030
-      }
-    },
-    "start-dev": {
-      "command": "node ./bin/server.js",
-      "env": {
-        "NODE_PATH": "./src",
-        "NODE_ENV": "development",
-        "PORT": 3000,
-        "APIPORT": 3030,
-        "SOCKET_HOST": "localhost",
-        "SOCKET_PORT": "9000"
-      }
-    },
+
     "start-dev-api": {
       "command": "node ./bin/api.js",
       "env": {
@@ -124,6 +111,15 @@
         "REDIS_HOST": "192.168.99.100"
       }
     },
+    "start-prod-api": {
+      "command": "node ./bin/api.js",
+      "env": {
+        "NODE_PATH": "./api",
+        "NODE_ENV": "production",
+        "APIPORT": 3030
+      }
+    },
+    
     "watch-client": {
       "command": "node webpack/webpack-dev-server.js",
       "env": {
