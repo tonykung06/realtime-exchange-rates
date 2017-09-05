@@ -4,11 +4,6 @@ const LOAD_FAIL = 'redux-example/exchangeRates/LOAD_FAIL';
 const GOT_UPDATE_SUCCESS = 'redux-example/exchangeRates/GOT_UPDATE_SUCCESS';
 const GOT_UPDATE = 'redux-example/exchangeRates/GOT_UPDATE';
 const GOT_UPDATE_FAIL = 'redux-example/exchangeRates/GOT_UPDATE_FAIL';
-const EDIT_START = 'redux-example/exchangeRates/EDIT_START';
-const EDIT_STOP = 'redux-example/exchangeRates/EDIT_STOP';
-const SAVE = 'redux-example/exchangeRates/SAVE';
-const SAVE_SUCCESS = 'redux-example/exchangeRates/SAVE_SUCCESS';
-const SAVE_FAIL = 'redux-example/exchangeRates/SAVE_FAIL';
 
 function isSameExchangeRate(v1, v2) {
   const ticker1 = v1.ticker;
@@ -17,7 +12,7 @@ function isSameExchangeRate(v1, v2) {
           ticker1.target === ticker2.target;
 }
 
-function upsertIndividualExchangeRate(state, updatedExchangeRate) {
+function updateIndividualExchangeRate(state, updatedExchangeRate) {
   const existingExchangeRates = [...state.data];
   for (let index = 0; index < existingExchangeRates.length; index++) {
     const exchangeRate = existingExchangeRates[index];
@@ -50,8 +45,6 @@ function sortExchangeRates(exchangeRates) {
 
 const initialState = {
   loaded: false,
-  editing: {},
-  saveError: {},
   data: []
 };
 
@@ -79,7 +72,7 @@ export default function reducer(state = initialState, action = {}) {
         error: action.error
       };
     case GOT_UPDATE_SUCCESS:
-      return upsertIndividualExchangeRate(state, action.result);
+      return updateIndividualExchangeRate(state, action.result);
     default:
       return state;
   }
@@ -101,22 +94,4 @@ export function load() {
     types: [LOAD, LOAD_SUCCESS, LOAD_FAIL],
     promise: (client) => client.get('/exchange-rates/load')
   };
-}
-
-export function save(widget) {
-  return {
-    types: [SAVE, SAVE_SUCCESS, SAVE_FAIL],
-    id: widget.id,
-    promise: (client) => client.post('/widget/update', {
-      data: widget
-    })
-  };
-}
-
-export function editStart(id) {
-  return { type: EDIT_START, id };
-}
-
-export function editStop(id) {
-  return { type: EDIT_STOP, id };
 }
