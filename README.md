@@ -10,7 +10,8 @@
 - `docker-compose ps` to see if all containers are up
 - `docker-compose logs` to read the logs
 - `docker-compose up -d --force-recreate` to restart the apps.
-### Note: There are some inter-dependencies among the apps. Docker engine will start the apps in order with respect to the configs in docker-compose.yml. But it will not wait for an applicaton up and ready before going to the next app. So we need to handle things some intermittent failure connections to Redis by retries (TODO). When you see this problem, try to execute `docker-compose up -d --force-recreate` for now. 
+### Note: There are some inter-dependencies among the apps. Docker engine will start the apps in order with respect to the configs in docker-compose.yml. But it will not wait for an applicaton up and ready before going to the next app. So we need to handle things some intermittent failure connections to Redis by retries (TODO). When you see this problem, try to execute `docker-compose up -d --force-recreate` for now.
+### Note: If you are using docker-machine, which is a linux VM, there is a known issue (https://forums.docker.com/t/docker-fails-to-perform-name-resolution/2655) of occasionally failed DNS lookup and people need to do `docker-machine restart` to get around it. Since `scheduled_jobs` app is dependent on DNS lookup for the external API endpoint, you may see `getaddrinfo EAI_AGAIN` error shown in logs `docker-compose logs scheduled_jobs`.
 
 # Architecture
 <img src="https://ptpaiq-dm2305.files.1drv.com/y4m_7SPD70ViE3jvgShqg9tEuEuhWZoZ1aKTXYZv9vhDjnaruYLyZ2CaUwWh5tgti8w2cFPoewudXrLHmZbI7Mskf9Rh36ZXtLhiSheiFOP_0PrP8U6uTbdTjfiOumBLfWIf0snZdXGL5DDM8PIAeXfQAtJis4GqTCHSEYbcBqv3vnh3oQhcX777uhIQN86kysgM52NKO35HY6b23zKXKfb9A?width=660&height=463&cropmode=none" width="660" height="463" />
