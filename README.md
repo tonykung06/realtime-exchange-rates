@@ -1,3 +1,6 @@
+### Claims
+- This app is developed based on the boilerplate `https://github.com/erikras/react-redux-universal-hot-example`
+
 # Steps to run the application
 1. install docker 17.07 on your computer
 2. git clone this repo
