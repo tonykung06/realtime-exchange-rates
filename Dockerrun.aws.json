@@ -1,0 +1,157 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+        {
+            "essential": true,
+            "image": "mongo",
+            "memory": 512,
+            "name": "mongo",
+            "portMappings": [
+                {
+                    "containerPort": 27017,
+                    "hostPort": 27017
+                }
+            ]
+        },
+        {
+            "environment": [
+                {
+                    "name": "SERVER_NAME",
+                    "value": "192.168.99.100 localhost"
+                },
+                {
+                    "name": "WS_ROUTE",
+                    "value": "ws"
+                },
+                {
+                    "name": "WEB_PORT",
+                    "value": "8080"
+                },
+                {
+                    "name": "WS_PORT",
+                    "value": "8080"
+                }
+            ],
+            "links": [
+                "web",
+                "ws"
+            ],
+            "essential": true,
+            "image": "foliea/nginx-proxy",
+            "name": "nginx",
+            "memory": 512,
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "hostPort": 80
+                }
+            ]
+        },
+        {
+            "essential": true,
+            "image": "redis",
+            "name": "redis",
+            "memory": 512,
+            "portMappings": [
+                {
+                    "containerPort": 6379,
+                    "hostPort": 6379
+                }
+            ]
+        },
+        {
+            "command": [
+                "npm",
+                "run",
+                "scheduled-jobs-prod"
+            ],
+            "environment": [
+                {
+                    "name": "REDIS_HOST",
+                    "value": "redis"
+                },
+                {
+                    "name": "REDIS_PORT",
+                    "value": "6379"
+                },
+                {
+                    "name": "MONGODB_HOST",
+                    "value": "mongo"
+                },
+                {
+                    "name": "MONGODB_PORT",
+                    "value": "27017"
+                }
+            ],
+            "links": [
+                "mongo",
+                "redis"
+            ],
+            "essential": true,
+            "image": "tonykung/ebaytest",
+            "name": "scheduled_jobs",
+            "memory": 512
+        },
+        {
+            "command": [
+                "npm",
+                "start"
+            ],
+            "environment": [
+                {
+                    "name": "REDIS_HOST",
+                    "value": "redis"
+                },
+                {
+                    "name": "REDIS_PORT",
+                    "value": "6379"
+                },
+                {
+                    "name": "SOCKET_HOST",
+                    "value": "ws"
+                },
+                {
+                    "name": "SOCKET_PORT",
+                    "value": "8080"
+                }
+            ],
+            "links": [
+                "redis"
+            ],
+            "essential": true,
+            "image": "tonykung/ebaytest",
+            "name": "web",
+            "memory": 512
+        },
+        {
+            "command": [
+                "npm",
+                "run",
+                "socket-prod"
+            ],
+            "environment": [
+                {
+                    "name": "REDIS_HOST",
+                    "value": "redis"
+                },
+                {
+                    "name": "REDIS_PORT",
+                    "value": "6379"
+                },
+                {
+                    "name": "SOCKET_PORT",
+                    "value": "8080"
+                }
+            ],
+            "links": [
+                "redis"
+            ],
+            "essential": true,
+            "image": "tonykung/ebaytest",
+            "name": "ws",
+            "memory": 512
+        }
+    ],
+    "family": "",
+    "volumes": []
+}
