@@ -13,6 +13,6 @@ export default (db, auditRecords) => {
             console.log(`Failed to insert api audit, ${JSON.stringify(auditRecord)}`);
             return;
         }
-        console.log(`Inserted ${result.result.n} (${result.ops.length}) api call audit records into the apiaudit collection`);
+        console.log(`Inserted ${JSON.stringify(result)}) api call audit records into the apiaudit collection`);
     });
 };

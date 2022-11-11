@@ -2,7 +2,7 @@ version: "2"
 
 services:
   redis:
-    image: redis
+    image: redis:7
     ports:
       - 6379:6379
   mongo:
@@ -12,7 +12,7 @@ services:
   scheduled_jobs:
     build: ./
     image: ebaytest
-    command: ['npm', 'run', 'scheduled-jobs-prod']
+    command: [ 'npm', 'run', 'scheduled-jobs-prod' ]
     depends_on:
       - mongo
       - redis
@@ -24,7 +24,7 @@ services:
   ws:
     build: ./
     image: ebaytest
-    command: ['npm', 'run', 'socket-prod']
+    command: [ 'npm', 'run', 'socket-prod' ]
     depends_on:
       - redis
     environment:
@@ -34,7 +34,7 @@ services:
   web:
     build: ./
     image: ebaytest
-    command: ['npm', 'start']
+    command: [ 'npm', 'start' ]
     depends_on:
       - redis
     environment:
@@ -43,15 +43,18 @@ services:
       SOCKET_HOST: ws
       SOCKET_PORT: 8080
   nginx:
-    image: foliea/nginx-proxy
+    image: nginx-proxy
+    build: ./nginx-proxy
     ports:
       - 80:80
     depends_on:
       - web
       - ws
+    links:
+      - "web:web"
+      - "ws:ws"
     environment:
       SERVER_NAME: '192.168.99.100 localhost'
       WS_ROUTE: ws
       WEB_PORT: 8080
       WS_PORT: 8080
-

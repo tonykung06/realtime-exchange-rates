@@ -18,16 +18,27 @@ const currencies = {
     xrp: 'Ripple',
     doge: 'Dogecoin',
     dash: 'Dash',
-    maid: 'Maidsafeecoin',
+    // maid: 'Maidsafeecoin',
     lsk: 'Lisk',
-    sjcx: 'Storjcoin X'
+    // sjcx: 'Storjcoin X'
 };
-const toUsd = v => `${v}-usd`;
+const toUsd = v => `from=${v}&to=usd`;
 const currencyPairs = Object.keys(currencies).map(toUsd);
 
-const addBaseCurrencyEnglishName = apiResult => {
-    apiResult.ticker.baseEnglishName = currencies[apiResult.ticker.base.toLowerCase()];
-    return apiResult;
+const formatExchangeResponse = apiResult => {
+    return {
+        ticker: {
+            base: apiResult.query.from,
+            target: apiResult.query.to,
+            price: apiResult.result,
+            volume: 0,
+            change: 0,
+            baseEnglishName: currencies[apiResult.query.from.toLowerCase()]
+        },
+        timestamp: Math.floor(Date.now() / 1000),
+        success: true,
+        error: ""
+    };
 };
 
 const batchFetchExchangeRates = (pairs) => {
@@ -51,13 +62,14 @@ const getExchangeRates = async (pairs = currencyPairs) => {
 }
 
 const getExchangeRate = (currencyPair) => {
-    return axios.get(`https://api.cryptonator.com/api/ticker/${currencyPair}`).then(r => addBaseCurrencyEnglishName(r.data));
+    // https://api.exchangerate.host/convert?from=BTC&to=USD
+    return axios.get(`https://api.exchangerate.host/convert?${currencyPair}`).then(r => formatExchangeResponse(r.data));
 }
 
 const formatExchangeRateCache = (exchangeRates) => {
     const exchangeRatesRedisCache = {};
     exchangeRates.forEach(v => {
-        exchangeRatesRedisCache[`${v.ticker.base}-${v.ticker.target}`] = JSON.stringify(v);
+        exchangeRatesRedisCache[`${v.query.from}-${v.query.to}`] = JSON.stringify(v);
     });
     return exchangeRatesRedisCache;
 };
@@ -97,7 +109,6 @@ const getAllExchangeRatesWithCache = async () => {
     let allExchangeRates = [];
     try {
         const cachedAllExchangeRates = await redisClient.hgetallAsync(exchangeRatesCachKey);
-        
         if (!cachedAllExchangeRates || Object.keys(cachedAllExchangeRates).length < 1) {
             allExchangeRates = fullRefreshCache();
         } else {
@@ -110,5 +121,5 @@ const getAllExchangeRatesWithCache = async () => {
     return allExchangeRates;
 };
 
-export {getNextExchangeRate, getAllExchangeRatesWithCache, fullRefreshCache};
+export { getNextExchangeRate, getAllExchangeRatesWithCache, fullRefreshCache };
 
